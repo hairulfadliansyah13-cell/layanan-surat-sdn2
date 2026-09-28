@@ -1,0 +1,964 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Layanan Surat Digital SDN 2 Barabai Timur</title>
+
+  <!-- Pustaka html2pdf, Tailwind CSS, Google Fonts, & Lucide Icons -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&amp;family=Work+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com/3.4.17" type="text/javascript"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.577.0/dist/umd/lucide.min.js" type="text/javascript"></script>
+
+  <style>
+    :root {
+      --ink: #102a43;
+      --navy: #0b3558;
+      --blue: #176b87;
+      --green: #2f855a;
+      --paper: #ffffff;
+      --mist: #edf5f4;
+      --line: #cbd8df;
+      --gold: #d39b32;
+    }
+    * { box-sizing: border-box; }
+    body {
+      width: 100%; margin: 0; color: var(--ink);
+      font-family: "Work Sans", sans-serif; background-color: #edf5f4;
+      background-image: linear-gradient(rgba(11,53,88,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(11,53,88,.045) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+    .app-shell { width: 100%; min-height: 100vh; }
+    .serif { font-family: "Source Serif 4", "Source Serif Pro", serif; }
+    .type-card { border: 1px solid #d5e1e5; transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
+    .type-card:hover { transform: translateY(-3px); border-color: #176b87; box-shadow: 0 12px 24px rgba(11,53,88,.11); }
+    .type-card.active { border-color: #176b87; box-shadow: 0 0 0 3px rgba(23,107,135,.16); background: #f4fbfc; }
+    .field-label { display: block; margin-bottom: .35rem; font-size: .75rem; font-weight: 700; color: #294c63; letter-spacing: .02em; }
+    .field-input, .field-select {
+      width: 100%; border: 1px solid #bed0d8; border-radius: .55rem; background: #fff; padding: .65rem .75rem;
+      font-size: .875rem; color: #102a43; outline: none; transition: border-color .15s, box-shadow .15s;
+    }
+    .field-input:focus, .field-select:focus { border-color: #176b87; box-shadow: 0 0 0 3px rgba(23,107,135,.14); }
+    .form-block { border-top: 1px solid #d8e4e6; padding-top: 1.25rem; margin-top: 1.25rem; }
+    .form-block:first-child { border-top: 0; padding-top: 0; margin-top: 0; }
+    .preview-wrap { background: #dbe8e9; padding: 1.25rem; display: flex; justify-content: center; }
+    
+    /* Format Kertas A4 Layar Pratinjau */
+    .document-paper {
+      width: 210mm; min-height: 297mm; margin: 0 auto; background: #fff; color: #111;
+      padding: 16mm 18mm; box-shadow: 0 10px 30px rgba(11,53,88,.18);
+      font-family: "Source Serif 4", "Source Serif Pro", serif; font-size: 11pt; line-height: 1.4;
+      box-sizing: border-box;
+    }
+    .letterhead { display: grid; grid-template-columns: 22mm 1fr 22mm; align-items: center; gap: 4mm; }
+    .letterhead-mark {
+      width: 20mm; height: 20mm; margin: auto; border: 2px solid #0b3558; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; color: #0b3558; font-family: "Work Sans", sans-serif;
+      font-weight: 800; font-size: 8px; text-align: center; line-height: 1.1;
+    }
+    .letterhead-text { text-align: center; line-height: 1.18; }
+    .letterhead-text .gov { font-size: 10.5pt; font-weight: 700; text-transform: uppercase; }
+    .letterhead-text .school { font-size: 13.5pt; font-weight: 800; letter-spacing: .02em; color: #0b3558; }
+    .letterhead-text .detail { font-size: 8pt; font-family: "Work Sans", sans-serif; }
+    .double-line { border-top: 3px solid #111; border-bottom: 1px solid #111; height: 4px; margin: 3mm 0 6mm; }
+    .letter-title { text-align: center; margin: 0 0 5mm; }
+    .letter-title h1 { margin: 0; font-size: 13pt; line-height: 1.1; font-weight: 700; text-transform: uppercase; text-decoration: underline; }
+    .letter-title p { margin: 1mm 0 0; font-size: 10pt; font-family: "Work Sans", sans-serif; }
+    .letter-body { text-align: justify; }
+    .letter-body p { margin: 0 0 3.5mm; text-indent: 8mm; }
+    .letter-body p.no-indent { text-indent: 0; }
+    .data-table { width: 100%; border-collapse: collapse; margin: 2mm 0 4mm; }
+    .data-table td { padding: 1mm 0; vertical-align: top; font-size: 10.5pt; }
+    .data-table td:nth-child(1) { width: 36%; }
+    .data-table td:nth-child(2) { width: 3%; text-align: center; }
+    .signature { width: 75mm; margin-left: auto; margin-top: 8mm; text-align: left; font-size: 10.5pt; }
+    .signature .signature-space { height: 20mm; position: relative; }
+    .stamp-space {
+      position: absolute; left: -15px; top: -2mm; width: 28mm; height: 22mm; border: 1.5px dashed #176b87;
+      border-radius: 50%; color: #176b87; display: flex; align-items: center; justify-content: center;
+      text-align: center; font-family: "Work Sans", sans-serif; font-size: 7.5pt; font-weight: 700; transform: rotate(-12deg); opacity: 0.7;
+    }
+    .toast { opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease; transform: translateY(8px); }
+    .toast.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+
+    /* Adaptasi Layar Kecil / Responsif Pratinjau */
+    @media (max-width: 1100px) {
+      .preview-wrap { overflow-x: auto; justify-content: flex-start; }
+    }
+    @media (max-width: 760px) {
+      .document-paper { transform: scale(.62); transform-origin: top left; margin-bottom: calc(-297mm * .38); }
+      .preview-scale { width: calc(210mm * .62); overflow: hidden; }
+    }
+
+    /* CSS Khusus Cetak Printer Device */
+    @media print {
+      html, body {
+        background: #ffffff !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+      }
+      .no-print, header, aside, .type-card, nav, #toast, button {
+        display: none !important;
+      }
+      main, .app-shell, .preview-wrap, .preview-scale, section {
+        background: transparent !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: visible !important;
+        display: block !important;
+      }
+      .document-paper {
+        box-shadow: none !important;
+        margin: 0 auto !important;
+        padding: 15mm 18mm !important;
+        width: 210mm !important;
+        min-height: 297mm !important;
+        transform: none !important;
+        page-break-after: avoid !important;
+        page-break-inside: avoid !important;
+      }
+      @page {
+        size: A4 portrait;
+        margin: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="canva-header no-print border-b-4 border-[#d39b32] bg-[#0b3558] text-white">
+      <div class="mx-auto flex w-full max-w-[1540px] items-center justify-between gap-5 px-5 py-4 md:px-8">
+        <div class="flex items-center gap-4">
+          <div class="flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#d39b32] bg-white text-[#0b3558] font-bold text-xs text-center shadow">
+            SDN 2
+          </div>
+          <div>
+            <p class="m-0 text-xs font-semibold uppercase tracking-[.18em] text-[#d9eff1]">Pemerintah Kab. Hulu Sungai Tengah</p>
+            <h1 class="m-0 text-lg font-bold md:text-2xl">Layanan Surat Digital SDN 2 Barabai Timur</h1>
+          </div>
+        </div>
+        <div class="hidden text-right text-xs leading-relaxed text-[#d9eff1] md:block">
+          Jl. Kartini RT/RW. 003/004 Kel. Barabai Timur, Kec. Barabai<br>NSS: 101150601002 | NPSN: 30302356
+        </div>
+      </div>
+    </header>
+
+    <main class="mx-auto w-full max-w-[1540px] px-4 py-6 md:px-8">
+      <section class="no-print mb-6">
+        <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="mb-1 text-xs font-bold uppercase tracking-[.18em] text-[#2f855a]">Pilih Kategori</p>
+            <h2 class="m-0 text-2xl font-extrabold text-[#102a43]">Jenis Surat Keterangan</h2>
+          </div>
+          <p class="max-w-xl text-sm leading-relaxed text-[#486581]">Pilih jenis surat yang ingin dibuat, lengkapi formulir di sebelah kiri, dan pratinjau dokumen secara instan.</p>
+        </div>
+
+        <div class="grid gap-3 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7">
+          <button type="button" class="type-card active rounded-xl bg-white p-4 text-left" data-letter="aktif">
+            <div class="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-[#e2f0f2] text-[#176b87]"><i data-lucide="file-check-2"></i></div>
+            <h3 class="mb-0.5 text-sm font-bold text-[#102a43]">Siswa Aktif</h3>
+            <p class="m-0 text-xs text-[#486581]">Status siswa aktif</p>
+          </button>
+          <button type="button" class="type-card rounded-xl bg-white p-4 text-left" data-letter="pindah">
+            <div class="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-[#fff4da] text-[#aa6b00]"><i data-lucide="files"></i></div>
+            <h3 class="mb-0.5 text-sm font-bold text-[#102a43]">Pindah Sekolah</h3>
+            <p class="m-0 text-xs text-[#486581]">Surat mutasi keluar</p>
+          </button>
+          <button type="button" class="type-card rounded-xl bg-white p-4 text-left" data-letter="rekomendasi">
+            <div class="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-[#e6f5ec] text-[#2f855a]"><i data-lucide="badge-check"></i></div>
+            <h3 class="mb-0.5 text-sm font-bold text-[#102a43]">Rekomendasi</h3>
+            <p class="m-0 text-xs text-[#486581]">Rekomendasi siswa</p>
+          </button>
+          <button type="button" class="type-card rounded-xl bg-white p-4 text-left" data-letter="berprestasi">
+            <div class="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-[#fff0e0] text-[#b45309]"><i data-lucide="trophy"></i></div>
+            <h3 class="mb-0.5 text-sm font-bold text-[#102a43]">Berprestasi</h3>
+            <p class="m-0 text-xs text-[#486581]">Peringkat &amp; prestasi</p>
+          </button>
+          <button type="button" class="type-card rounded-xl bg-white p-4 text-left" data-letter="pengganti">
+            <div class="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-[#f0e9ff] text-[#6941c6]"><i data-lucide="file-warning"></i></div>
+            <h3 class="mb-0.5 text-sm font-bold text-[#102a43]">Pengganti Ijazah</h3>
+            <p class="m-0 text-xs text-[#486581]">Ijazah hilang/rusak</p>
+          </button>
+          <button type="button" class="type-card rounded-xl bg-white p-4 text-left" data-letter="pernah">
+            <div class="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-[#eef2ff] text-[#4f46e5]"><i data-lucide="history"></i></div>
+            <h3 class="mb-0.5 text-sm font-bold text-[#102a43]">Pernah Sekolah</h3>
+            <p class="m-0 text-xs text-[#486581]">Riwayat sekolah</p>
+          </button>
+          <button type="button" class="type-card rounded-xl bg-white p-4 text-left" data-letter="cuti">
+            <div class="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-[#fff1f0] text-[#c2410c]"><i data-lucide="calendar-days"></i></div>
+            <h3 class="mb-0.5 text-sm font-bold text-[#102a43]">Cuti Pegawai</h3>
+            <p class="m-0 text-xs text-[#486581]">Izin cuti guru/staf</p>
+          </button>
+        </div>
+      </section>
+
+      <div class="grid gap-6 xl:grid-cols-[430px_minmax(0,1fr)]">
+        <!-- Formulir Data Input -->
+        <aside class="no-print">
+          <form id="letter-form" class="rounded-xl border border-[#d4e1e4] bg-white p-5 shadow-sm" onsubmit="return false;">
+            <div class="flex items-center justify-between gap-4">
+              <h2 class="m-0 text-lg font-bold text-[#102a43]">Isi Data Surat</h2>
+              <span id="form-type-badge" class="rounded-full bg-[#e2f0f2] px-3 py-1 text-xs font-bold text-[#176b87]">SISWA AKTIF</span>
+            </div>
+
+            <!-- Penandatangan -->
+            <div class="form-block">
+              <h3 class="mb-3 text-sm font-bold uppercase tracking-wide text-[#176b87]">Data Penandatangan</h3>
+              <div class="grid gap-3">
+                <div>
+                  <label class="field-label" for="signerRole">Jabatan Penandatangan</label>
+                  <select id="signerRole" class="field-select">
+                    <option>Kepala Sekolah</option>
+                    <option>Plt. Kepala Sekolah</option>
+                    <option>Plh. Kepala Sekolah</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="field-label" for="signerName">Nama Lengkap Penandatangan</label>
+                  <input id="signerName" class="field-input" value="Hj. Siti Rahmah, S.Pd.SD">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="field-label" for="signerNip">NIP</label>
+                    <input id="signerNip" class="field-input" value="19680712 199003 2 008">
+                  </div>
+                  <div>
+                    <label class="field-label" for="signerRank">Pangkat / Golongan</label>
+                    <input id="signerRank" class="field-input" value="Pembina Tk. I / IV-b">
+                  </div>
+                </div>
+                <label class="flex cursor-pointer items-center gap-2 text-sm text-[#294c63]" for="showStamp">
+                  <input id="showStamp" type="checkbox" class="h-4 w-4 accent-[#176b87]" checked>
+                  <span>Tampilkan Tanda Stempel Administrasi</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Detail Nomor & Tanggal Surat -->
+            <div class="form-block">
+              <h3 class="mb-3 text-sm font-bold uppercase tracking-wide text-[#176b87]">Detail Surat</h3>
+              <div class="grid gap-3">
+                <div>
+                  <label class="field-label" for="letterNumber">Nomor Surat</label>
+                  <input id="letterNumber" class="field-input" value="421/001/SD.02.1/DIK/2026" aria-label="Nomor surat">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="field-label" for="city">Kota/Tempat</label>
+                    <input id="city" class="field-input" value="Barabai">
+                  </div>
+                  <div>
+                    <label class="field-label" for="letterDate">Tanggal Surat</label>
+                    <input id="letterDate" type="date" class="field-input" value="2026-09-28">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Data Siswa -->
+            <div id="student-section" class="form-block">
+              <h3 class="mb-3 text-sm font-bold uppercase tracking-wide text-[#176b87]">Data Siswa</h3>
+              <div class="grid gap-3">
+                <div>
+                  <label class="field-label" for="studentName">Nama Lengkap Siswa</label>
+                  <input id="studentName" class="field-input" value="Ahmad Fadillah">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="field-label" for="nis">NIS</label>
+                    <input id="nis" class="field-input" value="2345">
+                  </div>
+                  <div>
+                    <label class="field-label" for="nisn">NISN</label>
+                    <input id="nisn" class="field-input" value="0123456789">
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="field-label" for="studentClass">Kelas</label>
+                    <input id="studentClass" class="field-input" value="V (Lima)">
+                  </div>
+                  <div>
+                    <label class="field-label" for="gender">Jenis Kelamin</label>
+                    <select id="gender" class="field-select">
+                      <option>Laki-laki</option>
+                      <option>Perempuan</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="field-label" for="birthPlace">Tempat Lahir</label>
+                    <input id="birthPlace" class="field-input" value="Barabai">
+                  </div>
+                  <div>
+                    <label class="field-label" for="birthDate">Tanggal Lahir</label>
+                    <input id="birthDate" type="date" class="field-input" value="2015-05-12">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Data Tambahan: Pindah Sekolah -->
+            <div id="destination-fields" class="form-block hidden">
+              <h3 class="mb-3 text-sm font-bold uppercase tracking-wide text-[#176b87]">Sekolah Tujuan</h3>
+              <div class="grid gap-3">
+                <div>
+                  <label class="field-label" for="destinationSchool">Nama Sekolah Tujuan</label>
+                  <input id="destinationSchool" class="field-input" value="SD Negeri 1 Banjarmasin">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="field-label" for="district">Kecamatan</label>
+                    <input id="district" class="field-input" value="Banjarmasin Tengah">
+                  </div>
+                  <div>
+                    <label class="field-label" for="regency">Kabupaten / Kota</label>
+                    <input id="regency" class="field-input" value="Kota Banjarmasin">
+                  </div>
+                </div>
+                <div>
+                  <label class="field-label" for="province">Provinsi</label>
+                  <input id="province" class="field-input" value="Kalimantan Selatan">
+                </div>
+                <div>
+                  <label class="field-label" for="reason">Alasan Pindah</label>
+                  <input id="reason" class="field-input" value="Mengikuti Tempat Tugas Orang Tua">
+                </div>
+              </div>
+            </div>
+
+            <!-- Data Tambahan: Pengganti Ijazah -->
+            <div id="replacement-fields" class="form-block hidden">
+              <h3 class="mb-3 text-sm font-bold uppercase tracking-wide text-[#176b87]">Detail Laporan Kehilangan</h3>
+              <div class="grid gap-3">
+                <div>
+                  <label class="field-label" for="policeReport">Nomor Surat Kehilangan Kepolisian</label>
+                  <input id="policeReport" class="field-input" value="SKTLK/455/III/2022/RES HST/SPKT">
+                </div>
+                <div>
+                  <label class="field-label" for="policeDate">Tanggal Surat Polisi</label>
+                  <input id="policeDate" type="date" class="field-input" value="2022-03-05">
+                </div>
+                <div>
+                  <label class="field-label" for="diplomaSerial">Nomor Seri Ijazah/STTB Original</label>
+                  <input id="diplomaSerial" class="field-input" value="DN-15/D-SD/13/0049891">
+                </div>
+                <div>
+                  <label class="field-label" for="schoolYearReplacement">Tahun Ajaran Lulus</label>
+                  <input id="schoolYearReplacement" class="field-input" value="2018/2019">
+                </div>
+              </div>
+            </div>
+
+            <!-- Data Tambahan: Pernah Sekolah -->
+            <div id="ever-fields" class="form-block hidden">
+              <h3 class="mb-3 text-sm font-bold uppercase tracking-wide text-[#176b87]">Riwayat Bersekolah</h3>
+              <div class="grid gap-3">
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="field-label" for="everClassStart">Mulai Kelas</label>
+                    <input id="everClassStart" class="field-input" value="I (Satu)">
+                  </div>
+                  <div>
+                    <label class="field-label" for="everClassEnd">Sampai Kelas</label>
+                    <input id="everClassEnd" class="field-input" value="VI (Enam)">
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="field-label" for="everYearStart">Tahun Mulai</label>
+                    <input id="everYearStart" class="field-input" value="2019/2020">
+                  </div>
+                  <div>
+                    <label class="field-label" for="everYearEnd">Tahun Selesai</label>
+                    <input id="everYearEnd" class="field-input" value="2024/2025">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Data Tambahan: Prestasi -->
+            <div id="achievement-fields" class="form-block hidden">
+              <h3 class="mb-3 text-sm font-bold uppercase tracking-wide text-[#176b87]">Detail Prestasi Akademik</h3>
+              <div class="grid gap-3">
+                <div>
+                  <label class="field-label" for="schoolYear">Tahun Ajaran</label>
+                  <input id="schoolYear" class="field-input" value="2025/2026">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="field-label" for="semester">Semester</label>
+                    <select id="semester" class="field-select">
+                      <option>1 (Ganjil)</option>
+                      <option selected>2 (Genap)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="field-label" for="ranking">Peringkat Kelas</label>
+                    <input id="ranking" class="field-input" value="1 (Satu)">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Data Tambahan: Cuti Pegawai -->
+            <div id="leave-fields" class="form-block hidden">
+              <h3 class="mb-3 text-sm font-bold uppercase tracking-wide text-[#176b87]">Data Pegawai &amp; Cuti</h3>
+              <div class="grid gap-3">
+                <div>
+                  <label class="field-label" for="employeeName">Nama Pegawai</label>
+                  <input id="employeeName" class="field-input" value="Nurkhalisah, S.Pd">
+                </div>
+                <div>
+                  <label class="field-label" for="employeeNip">NIP Pegawai</label>
+                  <input id="employeeNip" class="field-input" value="197407201996032003">
+                </div>
+                <div>
+                  <label class="field-label" for="employeePosition">Jabatan</label>
+                  <input id="employeePosition" class="field-input" value="Guru Kelas">
+                </div>
+                <div>
+                  <label class="field-label" for="employeeUnit">Unit Kerja</label>
+                  <input id="employeeUnit" class="field-input" value="SD Negeri 2 Barabai Timur">
+                </div>
+                <div>
+                  <label class="field-label" for="leaveType">Jenis Cuti</label>
+                  <input id="leaveType" class="field-input" value="Cuti Alasan Penting / Ibadah Haji">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="field-label" for="leaveStart">Mulai Tanggal</label>
+                    <input id="leaveStart" type="date" class="field-input" value="2026-05-27">
+                  </div>
+                  <div>
+                    <label class="field-label" for="leaveEnd">Sampai Tanggal</label>
+                    <input id="leaveEnd" type="date" class="field-input" value="2026-07-27">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Data Orang Tua / Wali -->
+            <div id="parent-fields" class="form-block">
+              <h3 class="mb-3 text-sm font-bold uppercase tracking-wide text-[#176b87]">Data Orang Tua / Wali</h3>
+              <div class="grid gap-3">
+                <div>
+                  <label class="field-label" for="fatherName">Nama Ayah Kandung</label>
+                  <input id="fatherName" class="field-input" value="Muhammad Yusuf">
+                </div>
+                <div>
+                  <label class="field-label" for="motherName">Nama Ibu Kandung</label>
+                  <input id="motherName" class="field-input" value="Siti Aminah">
+                </div>
+                <div>
+                  <label class="field-label" for="guardianName">Nama Wali (Opsional)</label>
+                  <input id="guardianName" class="field-input" value="Muhammad Yusuf">
+                </div>
+                <div>
+                  <label class="field-label" for="address">Alamat Tempat Tinggal</label>
+                  <textarea id="address" class="field-input min-h-[70px]">Jl. Kartini RT 003 RW 004, Kel. Barabai Timur, Kec. Barabai</textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tombol Aksi -->
+            <div class="form-block flex flex-wrap gap-3">
+              <button type="button" id="resetButton" class="inline-flex items-center gap-2 rounded-lg border border-[#9db7c0] bg-white px-4 py-2.5 text-sm font-bold text-[#294c63] hover:bg-[#f2f7f7] transition">
+                <i data-lucide="rotate-ccw" class="h-4 w-4"></i> Reset
+              </button>
+              <button type="button" id="printButton" class="inline-flex items-center gap-2 rounded-lg bg-[#176b87] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#0b526c] transition shadow">
+                <i data-lucide="printer" class="h-4 w-4"></i> Cetak
+              </button>
+              <button type="button" id="downloadButton" class="inline-flex items-center gap-2 rounded-lg bg-[#2f855a] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#246b48] transition shadow">
+                <i data-lucide="download" class="h-4 w-4"></i> Unduh PDF
+              </button>
+            </div>
+          </form>
+        </aside>
+
+        <!-- Pratinjau Dokumen -->
+        <section aria-label="Pratinjau surat">
+          <div class="no-print mb-3 flex items-center justify-between gap-3">
+            <div>
+              <p class="mb-1 text-xs font-bold uppercase tracking-[.16em] text-[#2f855a]">Live Preview</p>
+              <h2 class="m-0 text-lg font-bold text-[#102a43]">Tampilan Dokumen Cetak</h2>
+            </div>
+            <span class="rounded-full border border-[#bdd1d7] bg-white px-3 py-1 text-xs font-bold text-[#486581]">Format A4</span>
+          </div>
+
+          <div class="preview-wrap rounded-xl border border-[#c3d5d9]">
+            <div class="preview-scale">
+              <div id="print-area"></div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <div id="toast" class="toast no-print fixed bottom-5 right-5 z-50 rounded-lg bg-[#102a43] px-4 py-3 text-sm font-semibold text-white shadow-xl" role="status" aria-live="polite"></div>
+  </div>
+
+  <!-- Template Kop Surat -->
+  <template id="letterhead-template">
+    <header class="letterhead">
+      <div class="letterhead-mark">
+        SDN 2<br>BARABAI TIMUR
+      </div>
+      <div class="letterhead-text">
+        <div class="gov">PEMERINTAH KABUPATEN HULU SUNGAI TENGAH</div>
+        <div class="gov" style="font-size: 9.5pt; font-weight: 600;">DINAS PENDIDIKAN</div>
+        <div class="school">SD NEGERI 2 BARABAI TIMUR</div>
+        <div class="detail">NSS: 101150601002 &nbsp;|&nbsp; NPSN: 30302356</div>
+        <div class="detail">Jl. Kartini RT/RW. 003/004 Kel. Barabai Timur, Kec. Barabai, Kab. HST, Kalsel 71312</div>
+        <div class="detail">Website: www.sdn2bartim.sch.id &nbsp;|&nbsp; Email: sdnbartim@gmail.com</div>
+      </div>
+      <div class="letterhead-mark">
+        TUT WURI<br>HANDAYANI
+      </div>
+    </header>
+    <div class="double-line"></div>
+  </template>
+
+  <!-- Script Utama JavaScript -->
+  <script>
+    const $ = (id) => document.getElementById(id);
+    let letterType = 'aktif';
+
+    // Menyimpan nilai awal formulir untuk fungsi Reset
+    const initialValues = {};
+    document.querySelectorAll('#letter-form input, #letter-form textarea, #letter-form select').forEach(el => {
+      initialValues[el.id] = el.type === 'checkbox' ? el.checked : el.value;
+    });
+
+    function esc(value) {
+      return String(value || '-').replace(/[&<>"']/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+      }[char]));
+    }
+
+    function val(id) {
+      return $(id)?.value.trim() || '';
+    }
+
+    function formatDate(value) {
+      if (!value) return '........................';
+      try {
+        return new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(value + 'T00:00:00'));
+      } catch (e) {
+        return value;
+      }
+    }
+
+    function year() {
+      return val('letterDate') ? new Date(val('letterDate') + 'T00:00:00').getFullYear() : new Date().getFullYear();
+    }
+
+    function letterhead() {
+      return $('letterhead-template').innerHTML;
+    }
+
+    function signature() {
+      const stamp = $('showStamp').checked ? '<div class="stamp-space">STEMPEL<br>SEKOLAH</div>' : '';
+      return `
+        <div class="signature">
+          <div>${esc(val('city'))}, ${formatDate(val('letterDate'))}</div>
+          <div>${esc(val('signerRole'))}</div>
+          <div class="signature-space">${stamp}</div>
+          <div style="font-weight:700;text-decoration:underline;margin-bottom:1px;">${esc(val('signerName'))}</div>
+          <div>${esc(val('signerRank'))}</div>
+          <div>NIP. ${esc(val('signerNip'))}</div>
+        </div>`;
+    }
+
+    function paper(content, extraClass = '') {
+      return `<article class="document-paper ${extraClass}">${letterhead()}${content}</article>`;
+    }
+
+    // 1. Surat Siswa Aktif
+    function activeLetter() {
+      return paper(`
+        <div class="letter-title">
+          <h1>SURAT KETERANGAN SISWA AKTIF</h1>
+          <p>Nomor: ${esc(val('letterNumber'))}</p>
+        </div>
+        <div class="letter-body">
+          <p class="no-indent">Yang bertanda tangan di bawah ini, ${esc(val('signerRole'))} SD Negeri 2 Barabai Timur, Kecamatan Barabai, Kabupaten Hulu Sungai Tengah, Provinsi Kalimantan Selatan, menerangkan bahwa:</p>
+          <table class="data-table">
+            <tr><td>Nama Lengkap</td><td>:</td><td><strong>${esc(val('studentName'))}</strong></td></tr>
+            <tr><td>NIS / NISN</td><td>:</td><td>${esc(val('nis'))} / ${esc(val('nisn'))}</td></tr>
+            <tr><td>Tempat, Tanggal Lahir</td><td>:</td><td>${esc(val('birthPlace'))}, ${formatDate(val('birthDate'))}</td></tr>
+            <tr><td>Jenis Kelamin</td><td>:</td><td>${esc(val('gender'))}</td></tr>
+            <tr><td>Kelas</td><td>:</td><td>${esc(val('studentClass'))}</td></tr>
+            <tr><td>Nama Orang Tua / Wali</td><td>:</td><td>${esc(val('fatherName'))} / ${esc(val('motherName'))}</td></tr>
+            <tr><td>Alamat Orang Tua/Wali</td><td>:</td><td>${esc(val('address'))}</td></tr>
+          </table>
+          <p>Adalah benar-benar siswa/i yang terdaftar dan masih aktif mengikuti kegiatan belajar mengajar di SD Negeri 2 Barabai Timur pada Tahun Ajaran ${year()}/${year()+1}.</p>
+          <p>Demikian surat keterangan ini dibuat dengan sebenarnya untuk dapat dipergunakan sebagaimana mestinya.</p>
+        </div>
+        ${signature()}
+      `);
+    }
+
+    // 2. Surat Pindah Sekolah (Mutasi)
+    function transferLetter() {
+      return paper(`
+        <div class="letter-title">
+          <h1>SURAT KETERANGAN PINDAH / MUTASI SISWA</h1>
+          <p>Nomor: ${esc(val('letterNumber'))}</p>
+        </div>
+        <div class="letter-body">
+          <p class="no-indent">Yang bertanda tangan di bawah ini, ${esc(val('signerRole'))} SD Negeri 2 Barabai Timur, Kecamatan Barabai, Kabupaten Hulu Sungai Tengah, menerangkan bahwa:</p>
+          <table class="data-table">
+            <tr><td>Nama Lengkap Siswa</td><td>:</td><td><strong>${esc(val('studentName'))}</strong></td></tr>
+            <tr><td>NIS / NISN</td><td>:</td><td>${esc(val('nis'))} / ${esc(val('nisn'))}</td></tr>
+            <tr><td>Tempat, Tanggal Lahir</td><td>:</td><td>${esc(val('birthPlace'))}, ${formatDate(val('birthDate'))}</td></tr>
+            <tr><td>Jenis Kelamin</td><td>:</td><td>${esc(val('gender'))}</td></tr>
+            <tr><td>Kelas Terakhir</td><td>:</td><td>${esc(val('studentClass'))}</td></tr>
+          </table>
+          <p class="no-indent" style="margin-top:3mm;">Telah mengajukan permohonan pindah sekolah ke:</p>
+          <table class="data-table">
+            <tr><td>Sekolah Tujuan</td><td>:</td><td><strong>${esc(val('destinationSchool'))}</strong></td></tr>
+            <tr><td>Kecamatan</td><td>:</td><td>${esc(val('district'))}</td></tr>
+            <tr><td>Kabupaten / Kota</td><td>:</td><td>${esc(val('regency'))}</td></tr>
+            <tr><td>Provinsi</td><td>:</td><td>${esc(val('province'))}</td></tr>
+            <tr><td>Alasan Pindah</td><td>:</td><td>${esc(val('reason'))}</td></tr>
+          </table>
+          <p>Sesuai dengan surat permohonan dari Orang Tua/Wali siswa bersangkutan. Segala hak dan kewajibannya sebagai siswa SD Negeri 2 Barabai Timur dinyatakan berakhir terhitung sejak tanggal surat ini dikeluarkan.</p>
+          <p>Demikian surat keterangan pindah sekolah ini dibuat untuk dipergunakan sebagaimana mestinya.</p>
+        </div>
+        ${signature()}
+      `);
+    }
+
+    // 3. Surat Rekomendasi
+    function recommendationLetter() {
+      return paper(`
+        <div class="letter-title">
+          <h1>SURAT REKOMENDASI</h1>
+          <p>Nomor: ${esc(val('letterNumber'))}</p>
+        </div>
+        <div class="letter-body">
+          <p class="no-indent">Yang bertanda tangan di bawah ini, ${esc(val('signerRole'))} SD Negeri 2 Barabai Timur, memberikan rekomendasi kepada:</p>
+          <table class="data-table">
+            <tr><td>Nama Lengkap Siswa</td><td>:</td><td><strong>${esc(val('studentName'))}</strong></td></tr>
+            <tr><td>NIS / NISN</td><td>:</td><td>${esc(val('nis'))} / ${esc(val('nisn'))}</td></tr>
+            <tr><td>Tempat, Tanggal Lahir</td><td>:</td><td>${esc(val('birthPlace'))}, ${formatDate(val('birthDate'))}</td></tr>
+            <tr><td>Kelas</td><td>:</td><td>${esc(val('studentClass'))}</td></tr>
+            <tr><td>Nama Orang Tua/Wali</td><td>:</td><td>${esc(val('fatherName'))}</td></tr>
+          </table>
+          <p>Berdasarkan pengamatan, rekam jejak akademis, serta kelakuan baik selama menjadi siswa di SD Negeri 2 Barabai Timur, kami memberikan <strong>REKOMENDASI</strong> penuh kepada siswa yang bersangkutan untuk mengikuti program/kegiatan lanjutan maupun pendaftaran jalur apresiasi.</p>
+          <p>Siswa tersebut dikenal memiliki kepribadian yang santun, disiplin, dan berdedikasi tinggi terhadap tugas-tugas sekolah.</p>
+          <p>Demikian surat rekomendasi ini dibuat dengan sebenarnya agar dapat dipergunakan sebagaimana mestinya.</p>
+        </div>
+        ${signature()}
+      `);
+    }
+
+    // 4. Surat Siswa Berprestasi
+    function achievementLetter() {
+      return paper(`
+        <div class="letter-title">
+          <h1>SURAT KETERANGAN BERPRESTASI</h1>
+          <p>Nomor: ${esc(val('letterNumber'))}</p>
+        </div>
+        <div class="letter-body">
+          <p class="no-indent">Yang bertanda tangan di bawah ini, ${esc(val('signerRole'))} SD Negeri 2 Barabai Timur, menerangkan bahwa:</p>
+          <table class="data-table">
+            <tr><td>Nama Lengkap Siswa</td><td>:</td><td><strong>${esc(val('studentName'))}</strong></td></tr>
+            <tr><td>NIS / NISN</td><td>:</td><td>${esc(val('nis'))} / ${esc(val('nisn'))}</td></tr>
+            <tr><td>Tempat, Tanggal Lahir</td><td>:</td><td>${esc(val('birthPlace'))}, ${formatDate(val('birthDate'))}</td></tr>
+            <tr><td>Kelas</td><td>:</td><td>${esc(val('studentClass'))}</td></tr>
+          </table>
+          <p class="no-indent" style="margin-top:3mm;">Adalah benar siswa SD Negeri 2 Barabai Timur yang memiliki Prestasi Akademik pada:</p>
+          <table class="data-table">
+            <tr><td>Tahun Ajaran</td><td>:</td><td>${esc(val('schoolYear'))}</td></tr>
+            <tr><td>Semester</td><td>:</td><td>${esc(val('semester'))}</td></tr>
+            <tr><td>Peringkat Kelas</td><td>:</td><td><strong>Peringkat ${esc(val('ranking'))}</strong></td></tr>
+          </table>
+          <p>Bahwa siswa tersebut menunjukkan ketekunan, integritas tinggi, dan capaian nilai rata-rata di atas standar kriteria ketuntasan minimal (KKM) sekolah.</p>
+          <p>Demikian surat keterangan berprestasi ini diberikan untuk dipergunakan sebagai pendukung administrasi seleksi atau keperluan lainnya.</p>
+        </div>
+        ${signature()}
+      `);
+    }
+
+    // 5. Surat Pengganti Ijazah / SKTLK
+    function replacementLetter() {
+      return paper(`
+        <div class="letter-title">
+          <h1>SURAT KETERANGAN PENGGANTI IJAZAH / STTB</h1>
+          <p>Nomor: ${esc(val('letterNumber'))}</p>
+        </div>
+        <div class="letter-body">
+          <p class="no-indent">Yang bertanda tangan di bawah ini, ${esc(val('signerRole'))} SD Negeri 2 Barabai Timur, Kabupaten Hulu Sungai Tengah, menerangkan bahwa:</p>
+          <table class="data-table">
+            <tr><td>Nama Lengkap Pemilik</td><td>:</td><td><strong>${esc(val('studentName'))}</strong></td></tr>
+            <tr><td>NIS / NISN</td><td>:</td><td>${esc(val('nis'))} / ${esc(val('nisn'))}</td></tr>
+            <tr><td>Tempat, Tanggal Lahir</td><td>:</td><td>${esc(val('birthPlace'))}, ${formatDate(val('birthDate'))}</td></tr>
+            <tr><td>Tahun Kelulusan</td><td>:</td><td>Tahun Ajaran ${esc(val('schoolYearReplacement'))}</td></tr>
+            <tr><td>Nomor Seri Ijazah Original</td><td>:</td><td>${esc(val('diplomaSerial'))}</td></tr>
+          </table>
+          <p>Adalah benar yang bersangkutan telah LULUS dan pernah memiliki Ijazah/STTB SD Negeri 2 Barabai Timur. Berdasarkan Surat Tanda Penerimaan Laporan Kehilangan Kepolisian Nomor: <strong>${esc(val('policeReport'))}</strong> tanggal ${formatDate(val('policeDate'))}, Ijazah/STTB asli yang bersangkutan telah dinyatakan <strong>HILANG / RUSAK</strong>.</p>
+          <p>Surat Keterangan ini berfungsi sebagai Pengganti Ijazah/STTB Asli dan mempunyai kekuatan hukum yang sama.</p>
+          <p>Demikian surat keterangan ini dibuat dengan sebenarnya agar dapat dipergunakan sebagaimana mestinya.</p>
+        </div>
+        ${signature()}
+      `);
+    }
+
+    // 6. Surat Pernah Sekolah
+    function everLetter() {
+      return paper(`
+        <div class="letter-title">
+          <h1>SURAT KETERANGAN PERNAH SEKOLAH</h1>
+          <p>Nomor: ${esc(val('letterNumber'))}</p>
+        </div>
+        <div class="letter-body">
+          <p class="no-indent">Yang bertanda tangan di bawah ini, ${esc(val('signerRole'))} SD Negeri 2 Barabai Timur, menerangkan bahwa:</p>
+          <table class="data-table">
+            <tr><td>Nama Lengkap</td><td>:</td><td><strong>${esc(val('studentName'))}</strong></td></tr>
+            <tr><td>NIS / NISN</td><td>:</td><td>${esc(val('nis'))} / ${esc(val('nisn'))}</td></tr>
+            <tr><td>Tempat, Tanggal Lahir</td><td>:</td><td>${esc(val('birthPlace'))}, ${formatDate(val('birthDate'))}</td></tr>
+            <tr><td>Jenis Kelamin</td><td>:</td><td>${esc(val('gender'))}</td></tr>
+            <tr><td>Nama Orang Tua / Wali</td><td>:</td><td>${esc(val('fatherName'))}</td></tr>
+          </table>
+          <p>Adalah benar pernah tercatat sebagai siswa/i dan pernah mengenyam pendidikan di SD Negeri 2 Barabai Timur mulai dari <strong>Kelas ${esc(val('everClassStart'))} (T.A. ${esc(val('everYearStart'))})</strong> sampai dengan <strong>Kelas ${esc(val('everClassEnd'))} (T.A. ${esc(val('everYearEnd'))})</strong>.</p>
+          <p>Demikian surat keterangan pernah sekolah ini dibuat untuk dapat dipergunakan sebagaimana mestinya.</p>
+        </div>
+        ${signature()}
+      `);
+    }
+
+    // 7. Surat Cuti Pegawai / Guru
+    function leaveLetter() {
+      return paper(`
+        <div class="letter-title">
+          <h1>SURAT IZIN CUTI PEGAWAI / GURU</h1>
+          <p>Nomor: ${esc(val('letterNumber'))}</p>
+        </div>
+        <div class="letter-body">
+          <p class="no-indent">Yang bertanda tangan di bawah ini, ${esc(val('signerRole'))} SD Negeri 2 Barabai Timur, memberikan izin cuti kepada pegawai/guru di bawah ini:</p>
+          <table class="data-table">
+            <tr><td>Nama Lengkap Pegawai</td><td>:</td><td><strong>${esc(val('employeeName'))}</strong></td></tr>
+            <tr><td>NIP</td><td>:</td><td>${esc(val('employeeNip'))}</td></tr>
+            <tr><td>Jabatan</td><td>:</td><td>${esc(val('employeePosition'))}</td></tr>
+            <tr><td>Unit Kerja</td><td>:</td><td>${esc(val('employeeUnit'))}</td></tr>
+          </table>
+          <p class="no-indent" style="margin-top:3mm;">Diberikan Izin Cuti dengan rincian sebagai berikut:</p>
+          <table class="data-table">
+            <tr><td>Jenis Cuti</td><td>:</td><td><strong>${esc(val('leaveType'))}</strong></td></tr>
+            <tr><td>Terhitung Mulai Tanggal</td><td>:</td><td>${formatDate(val('leaveStart'))}</td></tr>
+            <tr><td>Sampai Tanggal</td><td>:</td><td>${formatDate(val('leaveEnd'))}</td></tr>
+          </table>
+          <p>Selama menjalankan cuti, tugas dan tanggung jawab harian diserahterimakan kepada pelaksana tugas harian yang ditunjuk di lingkungan SD Negeri 2 Barabai Timur.</p>
+          <p>Demikian surat izin cuti ini dibuat untuk dapat dipergunakan sebagaimana mestinya.</p>
+        </div>
+        ${signature()}
+      `);
+    }
+
+    // Router Generator
+    function renderLetter() {
+      const target = $('print-area');
+      if (!target) return;
+
+      switch (letterType) {
+        case 'aktif': target.innerHTML = activeLetter(); break;
+        case 'pindah': target.innerHTML = transferLetter(); break;
+        case 'rekomendasi': target.innerHTML = recommendationLetter(); break;
+        case 'berprestasi': target.innerHTML = achievementLetter(); break;
+        case 'pengganti': target.innerHTML = replacementLetter(); break;
+        case 'pernah': target.innerHTML = everLetter(); break;
+        case 'cuti': target.innerHTML = leaveLetter(); break;
+        default: target.innerHTML = activeLetter(); break;
+      }
+      
+      // Re-initialize icon visual jika ada
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    // Toggle tampilan bidang input sesuai jenis surat
+    function updateFormVisibility() {
+      const studentSec = $('student-section');
+      const parentSec = $('parent-fields');
+      const destSec = $('destination-fields');
+      const replSec = $('replacement-fields');
+      const everSec = $('ever-fields');
+      const achSec = $('achievement-fields');
+      const leaveSec = $('leave-fields');
+      const badge = $('form-type-badge');
+
+      // Sembunyikan semua bidang khusus
+      destSec.classList.add('hidden');
+      replSec.classList.add('hidden');
+      everSec.classList.add('hidden');
+      achSec.classList.add('hidden');
+      leaveSec.classList.add('hidden');
+
+      if (letterType === 'cuti') {
+        studentSec.classList.add('hidden');
+        parentSec.classList.add('hidden');
+        leaveSec.classList.remove('hidden');
+        if (badge) badge.textContent = 'CUTI PEGAWAI';
+      } else {
+        studentSec.classList.remove('hidden');
+        parentSec.classList.remove('hidden');
+
+        if (letterType === 'pindah') {
+          destSec.classList.remove('hidden');
+          if (badge) badge.textContent = 'PINDAH SEKOLAH';
+        } else if (letterType === 'pengganti') {
+          replSec.classList.remove('hidden');
+          if (badge) badge.textContent = 'PENGGANTI IJAZAH';
+        } else if (letterType === 'pernah') {
+          everSec.classList.remove('hidden');
+          if (badge) badge.textContent = 'PERNAH SEKOLAH';
+        } else if (letterType === 'berprestasi') {
+          achSec.classList.remove('hidden');
+          if (badge) badge.textContent = 'SISWA BERPRESTASI';
+        } else if (letterType === 'rekomendasi') {
+          if (badge) badge.textContent = 'REKOMENDASI';
+        } else {
+          if (badge) badge.textContent = 'SISWA AKTIF';
+        }
+      }
+
+      renderLetter();
+    }
+
+    function showToast(message) {
+      const toast = $('toast');
+      if (!toast) return;
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3200);
+    }
+
+    // Unduh PDF - Solusi Cloning Off-Screen murni 1:1 tanpa distortion / truncation
+    function downloadPDF() {
+      const element = document.getElementById('print-area');
+      if (!element) return;
+
+      // Buat container tersembunyi untuk perataan murni A4
+      const container = document.createElement('div');
+      container.style.position = 'absolute';
+      container.style.left = '-9999px';
+      container.style.top = '0';
+      container.style.width = '210mm';
+      container.style.background = '#ffffff';
+
+      // Salin node dokumen
+      const clone = element.cloneNode(true);
+      
+      // Bersihkan kelas transform / penyesuaian layar HP pada elemen hasil clone
+      const papers = clone.querySelectorAll('.document-paper');
+      papers.forEach(p => {
+        p.style.transform = 'none';
+        p.style.margin = '0';
+        p.style.boxShadow = 'none';
+        p.style.width = '210mm';
+        p.style.minHeight = '297mm';
+      });
+
+      container.appendChild(clone);
+      document.body.appendChild(container);
+
+      const recipientName = letterType === 'cuti' ? (val('employeeName') || 'Pegawai') : (val('studentName') || 'Siswa');
+      const filename = `Surat_${letterType.toUpperCase()}_${recipientName.replace(/\s+/g, '_')}.pdf`;
+
+      const opt = {
+        margin: 0,
+        filename: filename,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, logging: false },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      showToast('Sedang memproses dokumen PDF...');
+
+      html2pdf().set(opt).from(clone).save().then(() => {
+        document.body.removeChild(container);
+        showToast('File PDF berhasil diunduh!');
+      }).catch(err => {
+        console.error('PDF Error:', err);
+        if (document.body.contains(container)) {
+          document.body.removeChild(container);
+        }
+        showToast('Gagal mengunduh PDF. Silakan coba lagi.');
+      });
+    }
+
+    // Cetak Dokumen Printer
+    function printDocument() {
+      showToast('Membuka dialog cetak...');
+      setTimeout(() => {
+        window.print();
+      }, 250);
+    }
+
+    // Reset Formulir
+    function resetForm() {
+      document.querySelectorAll('#letter-form input, #letter-form textarea, #letter-form select').forEach(el => {
+        if (initialValues[el.id] !== undefined) {
+          if (el.type === 'checkbox') {
+            el.checked = initialValues[el.id];
+          } else {
+            el.value = initialValues[el.id];
+          }
+        }
+      });
+      renderLetter();
+      showToast('Formulir berhasil di-reset.');
+    }
+
+    // Inisialisasi Event Listener
+    document.addEventListener('DOMContentLoaded', () => {
+      // Inisialisasi Lucide Icons
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+
+      // Event Listener Tab Kategori
+      document.querySelectorAll('.type-card').forEach(button => {
+        button.addEventListener('click', () => {
+          document.querySelectorAll('.type-card').forEach(b => b.classList.remove('active'));
+          button.classList.add('active');
+          letterType = button.getAttribute('data-letter');
+          updateFormVisibility();
+        });
+      });
+
+      // Event Listener Live Updating Input
+      document.querySelectorAll('#letter-form input, #letter-form textarea, #letter-form select').forEach(input => {
+        input.addEventListener('input', renderLetter);
+        input.addEventListener('change', renderLetter);
+      });
+
+      // Event Listener Tombol Aksi
+      const printBtn = $('printButton');
+      if (printBtn) printBtn.addEventListener('click', printDocument);
+
+      const downloadBtn = $('downloadButton');
+      if (downloadBtn) downloadBtn.addEventListener('click', downloadPDF);
+
+      const resetBtn = $('resetButton');
+      if (resetBtn) resetBtn.addEventListener('click', resetForm);
+
+      // Render Pertama kali
+      updateFormVisibility();
+    });
+  </script>
+</body>
+</html>
