@@ -51,6 +51,20 @@
       font-family: "Source Serif 4", "Source Serif Pro", serif; font-size: 11pt; line-height: 1.4;
       box-sizing: border-box;
     }
+    .image-letterhead {
+      width: 100%;
+      margin: 0 0 5mm;
+      text-align: center;
+      line-height: 0;
+    }
+    .image-letterhead img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-width: 174mm;
+      margin: 0 auto;
+    }
+
     .letterhead { display: grid; grid-template-columns: 22mm 1fr 22mm; align-items: center; gap: 4mm; }
     .letterhead-mark {
       width: 20mm; height: 20mm; margin: auto; border: 2px solid #0b3558; border-radius: 50%;
@@ -508,23 +522,9 @@
 
   <!-- Template Kop Surat -->
   <template id="letterhead-template">
-    <header class="letterhead">
-      <div class="letterhead-mark">
-        SDN 2<br>BARABAI TIMUR
-      </div>
-      <div class="letterhead-text">
-        <div class="gov">PEMERINTAH KABUPATEN HULU SUNGAI TENGAH</div>
-        <div class="gov" style="font-size: 9.5pt; font-weight: 600;">DINAS PENDIDIKAN</div>
-        <div class="school">SD NEGERI 2 BARABAI TIMUR</div>
-        <div class="detail">NSS: 101150601002 &nbsp;|&nbsp; NPSN: 30302356</div>
-        <div class="detail">Jl. Kartini RT/RW. 003/004 Kel. Barabai Timur, Kec. Barabai, Kab. HST, Kalsel 71312</div>
-        <div class="detail">Website: www.sdn2bartim.sch.id &nbsp;|&nbsp; Email: sdnbartim@gmail.com</div>
-      </div>
-      <div class="letterhead-mark">
-        TUT WURI<br>HANDAYANI
-      </div>
-    </header>
-    <div class="double-line"></div>
+    <div class="image-letterhead">
+      <img src="kop-surat.png" alt="Kop Surat SD Negeri 2 Barabai Timur">
+    </div>
   </template>
 
   <!-- Script Utama JavaScript -->
