@@ -185,6 +185,26 @@
         </div>
       </section>
 
+      <section class="no-print mb-6 rounded-xl border border-[#d4e1e4] bg-white p-5 shadow-sm" aria-labelledby="daily-analytics-title">
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p class="mb-1 text-xs font-bold uppercase tracking-[.18em] text-[#2f855a]">Tren Penggunaan</p>
+            <h2 id="daily-analytics-title" class="m-0 text-xl font-extrabold text-[#102a43]">Statistik Harian</h2>
+            <p class="mt-1 text-sm text-[#486581]">Ringkasan aktivitas 7 hari terakhir berdasarkan waktu WITA.</p>
+          </div>
+          <button id="refresh-daily-stats" type="button" class="rounded-lg border border-[#9db7c0] bg-white px-4 py-2 text-sm font-bold text-[#294c63] hover:bg-[#f2f7f7]">Muat ulang statistik</button>
+        </div>
+        <p id="daily-stats-status" class="mt-3 text-sm text-[#486581]" aria-live="polite">Memuat statistik harian...</p>
+        <div id="daily-stats-chart" class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-7" aria-label="Grafik aktivitas harian">
+          <div class="rounded-lg bg-[#f4f8fa] p-3 text-sm text-[#486581]">Menyiapkan grafik...</div>
+        </div>
+        <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div class="rounded-lg bg-[#edf5f4] p-3"><div class="text-xs font-semibold text-[#486581]">Aktivitas 7 hari</div><div id="daily-total-events" class="mt-1 text-2xl font-extrabold text-[#102a43]">0</div></div>
+          <div class="rounded-lg bg-[#edf5f4] p-3"><div class="text-xs font-semibold text-[#486581]">Unduh PDF (7 hari)</div><div id="daily-total-downloads" class="mt-1 text-2xl font-extrabold text-[#102a43]">0</div></div>
+          <div class="rounded-lg bg-[#edf5f4] p-3"><div class="text-xs font-semibold text-[#486581]">Cetak (7 hari)</div><div id="daily-total-prints" class="mt-1 text-2xl font-extrabold text-[#102a43]">0</div></div>
+        </div>
+      </section>
+
       <section class="no-print mb-6 rounded-xl border border-[#d4e1e4] bg-white p-5 shadow-sm" aria-labelledby="usage-history-title">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -215,7 +235,7 @@
           <p class="max-w-xl text-sm leading-relaxed text-[#486581]">Pilih jenis surat yang ingin dibuat, lengkapi formulir di sebelah kiri, dan pratinjau dokumen secara instan.</p>
         </div>
 
-        <div class="grid gap-3 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7">
+        <div class="grid gap-3 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4">
           <button type="button" class="type-card active rounded-xl bg-white p-4 text-left" data-letter="aktif">
             <div class="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-[#e2f0f2] text-[#176b87]"><i data-lucide="file-check-2"></i></div>
             <h3 class="mb-0.5 text-sm font-bold text-[#102a43]">Siswa Aktif</h3>
@@ -229,7 +249,7 @@
           <button type="button" class="type-card rounded-xl bg-white p-4 text-left" data-letter="rekomendasi">
             <div class="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-[#e6f5ec] text-[#2f855a]"><i data-lucide="badge-check"></i></div>
             <h3 class="mb-0.5 text-sm font-bold text-[#102a43]">Rekomendasi</h3>
-            <p class="m-0 text-xs text-[#486581]">Rekomendasi siswa berprestasi</p>
+            <p class="m-0 text-xs text-[#486581]">Rekomendasi Murid Berprestasi</p>
           </button>
           <button type="button" class="type-card rounded-xl bg-white p-4 text-left" data-letter="berprestasi">
             <div class="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-[#fff0e0] text-[#b45309]"><i data-lucide="trophy"></i></div>
@@ -250,6 +270,11 @@
             <div class="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-[#fff1f0] text-[#c2410c]"><i data-lucide="calendar-days"></i></div>
             <h3 class="mb-0.5 text-sm font-bold text-[#102a43]">Cuti Pegawai</h3>
             <p class="m-0 text-xs text-[#486581]">Izin cuti guru/staf</p>
+          </button>
+          <button type="button" class="type-card rounded-xl bg-white p-4 text-left" data-letter="terimapindahan">
+            <div class="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-[#e6f5ec] text-[#2f855a]"><i data-lucide="user-round-check"></i></div>
+            <h3 class="mb-0.5 text-sm font-bold text-[#102a43]">Menerima Murid Pindahan</h3>
+            <p class="m-0 text-xs text-[#486581]">Surat rekomendasi penerimaan</p>
           </button>
         </div>
       </section>
@@ -498,6 +523,20 @@
                     <input id="leaveEnd" type="date" class="field-input" value="2026-07-27">
                   </div>
                 </div>
+              </div>
+            </div>
+
+            <!-- Data Murid Pindahan yang Diterima -->
+            <div id="incoming-transfer-fields" class="form-block hidden">
+              <h3 class="mb-3 text-sm font-bold uppercase tracking-wide text-[#176b87]">Data Murid Pindahan</h3>
+              <div class="grid gap-3">
+                <div><label class="field-label" for="incomingName">Nama Lengkap Murid</label><input id="incomingName" class="field-input" value=""></div>
+                <div><label class="field-label" for="incomingNisn">NISN</label><input id="incomingNisn" class="field-input" value=""></div>
+                <div><label class="field-label" for="originSchool">Asal Sekolah</label><input id="originSchool" class="field-input" value=""></div>
+                <div><label class="field-label" for="originSchoolAddress">Alamat Asal Sekolah</label><textarea id="originSchoolAddress" class="field-input min-h-[70px]"></textarea></div>
+                <div><label class="field-label" for="acceptedClass">Diterima di Kelas</label><input id="acceptedClass" class="field-input" value=""></div>
+                <div><label class="field-label" for="receivingSchool">Sekolah Baru</label><input id="receivingSchool" class="field-input" value="SD Negeri 2 Barabai Timur"></div>
+                <div><label class="field-label" for="receivingSchoolAddress">Alamat Sekolah Baru</label><textarea id="receivingSchoolAddress" class="field-input min-h-[70px]">Jl. Kartini Kel. Barabai Timur Kecamatan Barabai Kabupaten Hulu Sungai Tengah Provinsi Kalimantan Selatan</textarea></div>
               </div>
             </div>
 
@@ -806,6 +845,38 @@
       `);
     }
 
+    // 8. Surat Rekomendasi Menerima Murid Pindahan
+    function incomingTransferLetter() {
+      return paper(`
+        <div class="letter-title">
+          <h1>SURAT REKOMENDASI MENERIMA MURID PINDAHAN</h1>
+          <p>Nomor: ${esc(val('letterNumber'))}</p>
+        </div>
+        <div class="letter-body">
+          <p class="no-indent">Yang bertanda tangan di bawah ini, ${esc(val('signerRole'))} SD Negeri 2 Barabai Timur Kecamatan Barabai, Kabupaten Hulu Sungai Tengah, menerangkan bahwa:</p>
+          <table class="data-table">
+            <tr><td>Nama</td><td>:</td><td><strong>${esc(val('incomingName'))}</strong></td></tr>
+            <tr><td>Asal sekolah</td><td>:</td><td>${esc(val('originSchool'))}</td></tr>
+            <tr><td>Alamat asal Sekolah</td><td>:</td><td>${esc(val('originSchoolAddress'))}</td></tr>
+            <tr><td>NISN</td><td>:</td><td>${esc(val('incomingNisn'))}</td></tr>
+            <tr><td>Diterima di kelas</td><td>:</td><td>${esc(val('acceptedClass'))}</td></tr>
+            <tr><td>Sekolah Baru</td><td>:</td><td>${esc(val('receivingSchool'))}, ${esc(val('receivingSchoolAddress'))}</td></tr>
+          </table>
+          <p>Dengan ini kami memberikan rekomendasi/keterangan penerimaan murid pindahan tersebut untuk diterima sebagai murid di sekolah baru sebagaimana tercantum di atas.</p>
+          <p>Demikian surat keterangan ini dibuat, untuk dapat dipergunakan sebagaimana mestinya.</p>
+        </div>
+        ${signature()}
+        <div style="margin-top:8mm;font-size:9pt;">
+          <strong>Catatan syarat kelengkapan pindah:</strong>
+          <ol style="margin:2mm 0 0 7mm;padding-left:4mm;list-style-type:decimal;">
+            <li>Surat mutasi Dapodik &amp; Jurnal Karakter</li>
+            <li>Raport Sekolah</li>
+            <li>Copy Kartu Keluarga</li>
+          </ol>
+        </div>
+      `);
+    }
+
     // Router Generator
     function renderLetter() {
       const target = $('print-area');
@@ -819,6 +890,7 @@
         case 'pengganti': target.innerHTML = replacementLetter(); break;
         case 'pernah': target.innerHTML = everLetter(); break;
         case 'cuti': target.innerHTML = leaveLetter(); break;
+        case 'terimapindahan': target.innerHTML = incomingTransferLetter(); break;
         default: target.innerHTML = activeLetter(); break;
       }
       
@@ -837,6 +909,7 @@
       const everSec = $('ever-fields');
       const achSec = $('achievement-fields');
       const leaveSec = $('leave-fields');
+      const incomingSec = $('incoming-transfer-fields');
       const badge = $('form-type-badge');
 
       // Sembunyikan semua bidang khusus
@@ -845,8 +918,14 @@
       everSec.classList.add('hidden');
       achSec.classList.add('hidden');
       leaveSec.classList.add('hidden');
+      incomingSec.classList.add('hidden');
 
-      if (letterType === 'cuti') {
+      if (letterType === 'terimapindahan') {
+        studentSec.classList.add('hidden');
+        parentSec.classList.add('hidden');
+        incomingSec.classList.remove('hidden');
+        if (badge) badge.textContent = 'MENERIMA MURID PINDAHAN';
+      } else if (letterType === 'cuti') {
         studentSec.classList.add('hidden');
         parentSec.classList.add('hidden');
         leaveSec.classList.remove('hidden');
@@ -957,6 +1036,76 @@
       document.head.appendChild(script);
     }
 
+    function renderDailyStats(data) {
+      const chart = document.getElementById('daily-stats-chart');
+      const status = document.getElementById('daily-stats-status');
+      if (!chart || !status) return;
+      const days = data && Array.isArray(data.days) ? data.days : [];
+      if (data && data.error) {
+        status.textContent = 'Statistik harian gagal dimuat: ' + data.error;
+        chart.innerHTML = '<div class="rounded-lg bg-[#fff7ed] p-3 text-sm text-[#9a3412] sm:col-span-2 lg:col-span-7">Periksa izin Spreadsheet dan deployment Apps Script.</div>';
+        return;
+      }
+      const maxEvents = Math.max(1, ...days.map(d => Number(d.downloads || 0) + Number(d.prints || 0)));
+      chart.innerHTML = days.map(day => {
+        const downloads = Number(day.downloads || 0);
+        const prints = Number(day.prints || 0);
+        const total = downloads + prints;
+        const height = Math.max(4, Math.round(total / maxEvents * 100));
+        const label = day.label || day.date || '-';
+        return '<div class="rounded-lg border border-[#e0e9ec] bg-[#f8fbfc] p-3">' +
+          '<div class="text-xs font-bold text-[#486581]">' + esc(label) + '</div>' +
+          '<div class="mt-3 flex h-28 items-end justify-center rounded-md bg-white px-2 pb-2" title="' + total + ' aktivitas">' +
+            '<div class="w-full max-w-[38px] rounded-t-md bg-[#176b87] transition-all" style="height:' + height + '%;min-height:4px"></div>' +
+          '</div>' +
+          '<div class="mt-2 text-center text-lg font-extrabold text-[#102a43]">' + total.toLocaleString('id-ID') + '</div>' +
+          '<div class="mt-1 flex justify-between gap-1 text-[10px] text-[#486581]"><span>PDF ' + downloads.toLocaleString('id-ID') + '</span><span>Cetak ' + prints.toLocaleString('id-ID') + '</span></div>' +
+        '</div>';
+      }).join('');
+      if (!days.length) {
+        chart.innerHTML = '<div class="rounded-lg bg-[#f4f8fa] p-4 text-sm text-[#486581] sm:col-span-2 lg:col-span-7">Belum ada data aktivitas pada periode ini.</div>';
+      }
+      const totals = days.reduce((acc, d) => { acc.downloads += Number(d.downloads || 0); acc.prints += Number(d.prints || 0); return acc; }, {downloads:0, prints:0});
+      const eventsEl = document.getElementById('daily-total-events');
+      const downloadsEl = document.getElementById('daily-total-downloads');
+      const printsEl = document.getElementById('daily-total-prints');
+      if (eventsEl) eventsEl.textContent = (totals.downloads + totals.prints).toLocaleString('id-ID');
+      if (downloadsEl) downloadsEl.textContent = totals.downloads.toLocaleString('id-ID');
+      if (printsEl) printsEl.textContent = totals.prints.toLocaleString('id-ID');
+      status.textContent = 'Statistik diperbarui. Menampilkan ' + days.length + ' hari terakhir (WITA).';
+    }
+
+    function loadDailyStats() {
+      const status = document.getElementById('daily-stats-status');
+      const chart = document.getElementById('daily-stats-chart');
+      if (!status || !chart || !ANALYTICS_ENDPOINT) return;
+      status.textContent = 'Memuat statistik harian...';
+      const callbackName = '__sdn2Daily_' + Date.now();
+      let script;
+      const timeout = setTimeout(() => {
+        if (window[callbackName]) {
+          delete window[callbackName];
+          if (script) script.remove();
+          status.textContent = 'Statistik harian belum dapat dimuat. Periksa deployment Apps Script.';
+        }
+      }, 12000);
+      window[callbackName] = function(result) {
+        clearTimeout(timeout);
+        delete window[callbackName];
+        if (script) script.remove();
+        renderDailyStats(result || {});
+      };
+      script = document.createElement('script');
+      script.src = ANALYTICS_ENDPOINT + '?action=daily&days=7&callback=' + encodeURIComponent(callbackName);
+      script.onerror = () => {
+        clearTimeout(timeout);
+        delete window[callbackName];
+        script.remove();
+        status.textContent = 'Statistik harian gagal dimuat. Pastikan Apps Script dan deployment sudah diperbarui.';
+      };
+      document.head.appendChild(script);
+    }
+
     function loadUsageHistory() {
       const status = document.getElementById('history-status');
       const rows = document.getElementById('history-rows');
@@ -989,7 +1138,7 @@
           const date = item.timestamp ? new Date(item.timestamp) : null;
           const timeText = date && !isNaN(date.getTime()) ? date.toLocaleString('id-ID') : '-';
           const activity = item.event === 'download' ? 'Unduh PDF' : (item.event === 'print' ? 'Cetak' : String(item.event || 'Aktivitas'));
-          const typeNames = {aktif:'Siswa Aktif', pindah:'Pindah Sekolah', rekomendasi:'Rekomendasi', berprestasi:'Siswa Berprestasi', pengganti:'Pengganti Ijazah', pernah:'Pernah Sekolah', cuti:'Cuti Pegawai'};
+          const typeNames = {aktif:'Siswa Aktif', pindah:'Pindah Sekolah', rekomendasi:'Rekomendasi', berprestasi:'Siswa Berprestasi', pengganti:'Pengganti Ijazah', pernah:'Pernah Sekolah', cuti:'Cuti Pegawai', terimapindahan:'Rekomendasi Menerima Murid Pindahan'};
           const letter = typeNames[item.letterType] || item.letterType || '-';
           const userId = item.userId ? String(item.userId) : '-';
           const masked = userId.length > 12 ? userId.slice(0, 8) + '…' + userId.slice(-4) : userId;
@@ -1128,7 +1277,10 @@
 
       // Render statistik dan riwayat penggunaan
       loadGlobalAnalytics();
+      loadDailyStats();
       loadUsageHistory();
+      const refreshDailyBtn = $('refresh-daily-stats');
+      if (refreshDailyBtn) refreshDailyBtn.addEventListener('click', () => { loadGlobalAnalytics(); loadDailyStats(); });
       const refreshHistoryBtn = $('refresh-history');
       if (refreshHistoryBtn) refreshHistoryBtn.addEventListener('click', loadUsageHistory);
 
