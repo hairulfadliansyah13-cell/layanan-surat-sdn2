@@ -148,6 +148,83 @@
       color: white;
     }
     .analytics-number { font-variant-numeric: tabular-nums; }
+
+    /* Modern, professional application shell */
+    body {
+      background: #f4f7fb;
+      background-image: radial-gradient(circle at 10% 0%, rgba(23,107,135,.07), transparent 28%),
+                        radial-gradient(circle at 95% 12%, rgba(211,155,50,.07), transparent 24%);
+    }
+    .canva-header {
+      border-bottom-width: 0 !important;
+      background: linear-gradient(115deg, #092f50 0%, #104d70 58%, #176b87 100%) !important;
+      box-shadow: 0 8px 24px rgba(11,53,88,.13);
+    }
+    .canva-header > div { padding-top: 19px !important; padding-bottom: 19px !important; }
+    .canva-header h1 { letter-spacing: -.025em; }
+    .app-nav {
+      position: sticky; top: 0; z-index: 40;
+      background: rgba(255,255,255,.92);
+      border-bottom: 1px solid #dce6ee;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 4px 18px rgba(15,42,67,.045);
+    }
+    .app-nav-inner {
+      max-width: 1540px; margin: 0 auto; padding: 0 32px;
+      display: flex; align-items: center; gap: 8px; min-height: 58px;
+    }
+    .app-nav-link {
+      display: inline-flex; align-items: center; gap: 9px;
+      padding: 10px 15px; border-radius: 10px;
+      color: #52677b; font-size: 13px; font-weight: 700;
+      text-decoration: none; transition: .18s ease;
+    }
+    .app-nav-link svg { width: 17px; height: 17px; }
+    .app-nav-link:hover, .app-nav-link.active {
+      color: #0b5574; background: #eaf4f7;
+    }
+    main { scroll-margin-top: 76px; }
+    main > section { scroll-margin-top: 78px; }
+    main section.rounded-xl, #letter-form, #preview-section {
+      border-radius: 18px !important;
+      box-shadow: 0 8px 28px rgba(15,42,67,.055) !important;
+    }
+    .analytics-card {
+      border-radius: 20px !important;
+      background: linear-gradient(120deg, #0b3558, #176b87 72%, #23839a) !important;
+      box-shadow: 0 14px 34px rgba(11,53,88,.16) !important;
+    }
+    .type-card {
+      border-radius: 15px !important;
+      padding: 17px !important;
+      background: #fff !important;
+      box-shadow: 0 3px 12px rgba(15,42,67,.035);
+    }
+    .type-card.active {
+      background: #f0f8fa !important;
+      border-color: #176b87 !important;
+      box-shadow: 0 0 0 3px rgba(23,107,135,.11), 0 8px 18px rgba(15,42,67,.05) !important;
+    }
+    .type-card h3 { letter-spacing: -.01em; }
+    .field-input, .field-select { border-radius: 10px; padding: .72rem .82rem; }
+    button { transition: transform .16s ease, box-shadow .16s ease, background .16s ease; }
+    button:active { transform: translateY(1px); }
+    #letter-form { border-color: #e0e8ef !important; }
+    #letter-form h2, #letter-form h3 { letter-spacing: -.02em; }
+    #riwayat table thead th { white-space: nowrap; }
+    #riwayat table tbody tr:nth-child(even) { background: #fafcfd; }
+    @media (max-width: 640px) {
+      .app-nav-inner { padding: 0 14px; gap: 4px; min-height: 54px; }
+      .app-nav-link { flex: 1; justify-content: center; padding: 10px 8px; font-size: 12px; }
+      .app-nav-link svg { width: 16px; height: 16px; }
+      main { padding-top: 16px !important; }
+      .canva-header > div { padding-left: 16px !important; padding-right: 16px !important; }
+      .canva-header h1 { font-size: 16px !important; line-height: 1.25; }
+      .analytics-card { padding: 16px !important; }
+      .analytics-card .grid.grid-cols-3 { width: 100%; gap: 7px !important; }
+      .analytics-card .grid.grid-cols-3 > div { min-width: 0 !important; padding: 10px 5px !important; }
+      .analytics-number { font-size: 21px !important; }
+    }
   </style>
 </head>
 <body>
@@ -169,8 +246,24 @@
       </div>
     </header>
 
+    <nav class="app-nav no-print" aria-label="Navigasi utama">
+      <div class="app-nav-inner">
+        <a href="#dashboard" class="app-nav-link active"><i data-lucide="layout-dashboard"></i><span>Ringkasan</span></a>
+        <a href="#buat-surat" class="app-nav-link"><i data-lucide="file-plus-2"></i><span>Buat Surat</span></a>
+        <a href="#riwayat" class="app-nav-link"><i data-lucide="history"></i><span>Riwayat</span></a>
+      </div>
+    </nav>
+
     <main class="mx-auto w-full max-w-[1540px] px-4 py-6 md:px-8">
-      <section class="no-print mb-6 analytics-card rounded-xl p-5 shadow-sm">
+      <div class="no-print mb-5 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p class="mb-1 text-xs font-bold uppercase tracking-[.16em] text-[#176b87]">Portal Administrasi Sekolah</p>
+          <h2 class="m-0 text-2xl font-extrabold tracking-tight text-[#102a43] md:text-3xl">Selamat datang</h2>
+          <p class="mt-1 text-sm text-[#627d98]">Kelola pembuatan surat, pantau statistik, dan lihat riwayat layanan dalam satu tempat.</p>
+        </div>
+        <span class="rounded-full border border-[#d7e5eb] bg-white px-3 py-2 text-xs font-semibold text-[#486581]">SDN 2 Barabai Timur</span>
+      </div>
+      <section id="dashboard" class="no-print mb-6 analytics-card rounded-xl p-5 shadow-sm">
         <div class="flex flex-wrap items-center justify-between gap-4">
           <div>
             <p class="mb-1 text-xs font-bold uppercase tracking-[.18em] text-[#d9eff1]">Statistik Penggunaan</p>
@@ -205,7 +298,7 @@
         </div>
       </section>
 
-      <section class="no-print mb-6 rounded-xl border border-[#d4e1e4] bg-white p-5 shadow-sm" aria-labelledby="usage-history-title">
+      <section id="riwayat" class="no-print mb-6 rounded-xl border border-[#d4e1e4] bg-white p-5 shadow-sm" aria-labelledby="usage-history-title">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p class="mb-1 text-xs font-bold uppercase tracking-[.18em] text-[#2f855a]">Riwayat Aktivitas</p>
@@ -249,7 +342,7 @@
           <button type="button" class="type-card rounded-xl bg-white p-4 text-left" data-letter="rekomendasi">
             <div class="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-[#e6f5ec] text-[#2f855a]"><i data-lucide="badge-check"></i></div>
             <h3 class="mb-0.5 text-sm font-bold text-[#102a43]">Rekomendasi</h3>
-            <p class="m-0 text-xs text-[#486581]">Rekomendasi Murid Berprestasi</p>
+            <p class="m-0 text-xs text-[#486581]">Rekomendasi siswa</p>
           </button>
           <button type="button" class="type-card rounded-xl bg-white p-4 text-left" data-letter="berprestasi">
             <div class="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-[#fff0e0] text-[#b45309]"><i data-lucide="trophy"></i></div>
@@ -609,6 +702,25 @@
 
   <!-- Script Utama JavaScript -->
   <script>
+    // Navigation state for the three main application areas.
+    document.addEventListener('DOMContentLoaded', () => {
+      const links = Array.from(document.querySelectorAll('.app-nav-link'));
+      links.forEach(link => link.addEventListener('click', () => {
+        links.forEach(item => item.classList.remove('active'));
+        link.classList.add('active');
+      }));
+      const targets = ['dashboard', 'buat-surat', 'riwayat']
+        .map(id => document.getElementById(id)).filter(Boolean);
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver(entries => {
+          const visible = entries.filter(entry => entry.isIntersecting)
+            .sort((a,b) => b.intersectionRatio - a.intersectionRatio)[0];
+          if (!visible) return;
+          links.forEach(link => link.classList.toggle('active', link.getAttribute('href') === '#' + visible.target.id));
+        }, { rootMargin: '-22% 0px -65% 0px', threshold: [0, .1, .25] });
+        targets.forEach(target => observer.observe(target));
+      }
+    });
     const $ = (id) => document.getElementById(id);
     let letterType = 'aktif';
 
